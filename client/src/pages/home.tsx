@@ -1,24 +1,24 @@
 import { GameCard } from "@/components/game-card";
 import { NavigationBar } from "@/components/navigation-bar";
-import { WingoLogo } from "@/components/game-logos/wingo-logo";
-import { AviatorLogo } from "@/components/game-logos/aviator-logo";
-import { SlotsLogo } from "@/components/game-logos/slots-logo";
+import wingoImg from "@assets/wingo.png";
+import aviatorImg from "@assets/avaitor.png";
+import slotsImg from "@assets/slots.png";
 
 const games = [
   {
     id: "wingo",
     name: "BC99 Wingo",
-    logo: WingoLogo,
+    image: wingoImg,
   },
   {
     id: "aviator",
     name: "BC99 Aviator",
-    logo: AviatorLogo,
+    image: aviatorImg,
   },
   {
     id: "slots",
     name: "BC99 Slots",
-    logo: SlotsLogo,
+    image: slotsImg,
   },
 ];
 
@@ -42,7 +42,7 @@ export default function Home() {
             <GameCard
               key={game.id}
               name={game.name}
-              Logo={game.logo}
+              image={game.image}
               onPlay={() => console.log(`Play ${game.name}`)}
             />
           ))}

@@ -3,17 +3,17 @@ import { Card } from "@/components/ui/card";
 
 interface GameCardProps {
   name: string;
-  Logo: React.ComponentType;
+  image: string;
   onPlay: () => void;
 }
 
-export function GameCard({ name, Logo, onPlay }: GameCardProps) {
+export function GameCard({ name, image, onPlay }: GameCardProps) {
   return (
     <Card className="bg-primary rounded-xl p-4 flex flex-col items-center border-none transform transition-transform hover:translate-y-[-5px]">
       <h2 className="text-xl font-bold mb-3 text-white">{name}</h2>
       <div className="bg-primary rounded-lg w-full aspect-square mb-4 overflow-hidden flex items-center justify-center">
         <div className="w-4/5 h-4/5 flex items-center justify-center">
-          <Logo />
+          <img src={image} alt={name} className="w-full h-full object-contain" />
         </div>
       </div>
       <Button
