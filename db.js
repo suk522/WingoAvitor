@@ -1,5 +1,6 @@
 // Database connection and queries
-const { Pool } = require('pg');
+import pg from 'pg';
+const { Pool } = pg;
 
 // Create connection pool
 const pool = new Pool({
@@ -118,7 +119,7 @@ async function getGameHistory(userId) {
   return result.rows;
 }
 
-module.exports = {
+export {
   initializeDatabase,
   createUser,
   getUserByUsername,

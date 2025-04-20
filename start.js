@@ -1,10 +1,17 @@
 // Simple server to serve static files and handle API requests
-const express = require('express');
-const session = require('express-session');
-const pgSession = require('connect-pg-simple')(session);
-const { Pool } = require('pg');
-const db = require('./db');
-const path = require('path');
+import express from 'express';
+import session from 'express-session';
+import pgSession from 'connect-pg-simple';
+import pg from 'pg';
+import * as db from './db.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import bcrypt from 'bcryptjs';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const PgSession = pgSession(session);
+const { Pool } = pg;
 
 // Create express app
 const app = express();
@@ -24,7 +31,7 @@ const sessionPool = new Pool({
 });
 
 app.use(session({
-  store: new pgSession({
+  store: new PgSession({
     pool: sessionPool,
     tableName: 'session',
     createTableIfMissing: true
@@ -69,7 +76,6 @@ app.post('/api/register', async (req, res) => {
     }
     
     // Hash password
-    const bcrypt = require('bcryptjs');
     const hashedPassword = await bcrypt.hash(password, 10);
     
     // Create user
@@ -103,7 +109,6 @@ app.post('/api/login', async (req, res) => {
     }
     
     // Check password
-    const bcrypt = require('bcryptjs');
     const passwordValid = await bcrypt.compare(password, user.password);
     if (!passwordValid) {
       return res.status(401).json({ message: 'Invalid username or password' });
