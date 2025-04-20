@@ -7,7 +7,12 @@ if (!process.env.MONGODB_URI) {
 }
 
 const client = new MongoClient(process.env.MONGODB_URI);
-const db = client.db("bc99db");
+const db = client.db("bc99");
+
+// Test the connection
+client.connect()
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('MongoDB connection error:', err));
 
 // Interface definitions
 export interface User {
