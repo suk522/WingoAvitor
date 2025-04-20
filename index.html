@@ -12,39 +12,109 @@
         <header>
             <h1>Welcome to BC99</h1>
             <p>Experience the thrill of our premium games</p>
+            <div id="user-info" class="user-info hidden">
+                <span id="username-display"></span>
+                <span id="balance-display"></span>
+            </div>
         </header>
 
+        <!-- Auth forms -->
+        <div id="auth-section" class="auth-section">
+            <div class="auth-tabs">
+                <button id="login-tab" class="auth-tab active" onclick="showAuthTab('login')">Login</button>
+                <button id="register-tab" class="auth-tab" onclick="showAuthTab('register')">Register</button>
+            </div>
+            
+            <form id="login-form" class="auth-form">
+                <div class="form-group">
+                    <label for="login-username">Username</label>
+                    <input type="text" id="login-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" name="password" required>
+                </div>
+                <button type="submit" class="auth-button">Login</button>
+                <p id="login-message" class="auth-message"></p>
+            </form>
+            
+            <form id="register-form" class="auth-form hidden">
+                <div class="form-group">
+                    <label for="register-username">Username</label>
+                    <input type="text" id="register-username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Password</label>
+                    <input type="password" id="register-password" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-confirm">Confirm Password</label>
+                    <input type="password" id="register-confirm" name="confirm" required>
+                </div>
+                <button type="submit" class="auth-button">Register</button>
+                <p id="register-message" class="auth-message"></p>
+            </form>
+        </div>
+
         <!-- Main content -->
-        <main>
-            <div class="games-grid">
-                <!-- Wingo Game Card -->
-                <div class="game-card">
-                    <h2>BC99 Wingo</h2>
-                    <div class="game-logo">
-                        <img src="attached_assets/wingo.png" alt="Wingo">
+        <main id="main-content" class="hidden">
+            <div class="games-grid" id="games-container">
+                <!-- Game cards will be loaded dynamically -->
+            </div>
+            
+            <!-- Game Play Modal -->
+            <div id="game-modal" class="modal hidden">
+                <div class="modal-content">
+                    <span class="close-modal" onclick="closeModal()">&times;</span>
+                    <h2 id="modal-game-name">Game Name</h2>
+                    <div class="bet-controls">
+                        <label for="bet-amount">Bet Amount:</label>
+                        <input type="number" id="bet-amount" min="1" value="10">
+                        <button onclick="placeBet()" class="bet-button">Place Bet</button>
                     </div>
-                    <button class="play-button" onclick="playGame('wingo')">Play</button>
-                </div>
-
-                <!-- Aviator Game Card -->
-                <div class="game-card">
-                    <h2>BC99 Aviator</h2>
-                    <div class="game-logo">
-                        <img src="attached_assets/avaitor.png" alt="Aviator">
+                    <div id="game-result" class="game-result hidden">
+                        <p id="result-message"></p>
+                        <p id="winnings"></p>
+                        <button onclick="closeModal()" class="play-again-button">Play Again</button>
                     </div>
-                    <button class="play-button" onclick="playGame('aviator')">Play</button>
-                </div>
-
-                <!-- Slots Game Card -->
-                <div class="game-card">
-                    <h2>BC99 Slots</h2>
-                    <div class="game-logo">
-                        <img src="attached_assets/slots.png" alt="Slots">
-                    </div>
-                    <button class="play-button" onclick="playGame('slots')">Play</button>
                 </div>
             </div>
         </main>
+
+        <!-- Activity section -->
+        <section id="activity-section" class="section-content hidden">
+            <h2>Recent Activity</h2>
+            <div id="activity-list" class="activity-list">
+                <!-- Activity items will be loaded dynamically -->
+                <p class="empty-message">No recent activity to display.</p>
+            </div>
+        </section>
+
+        <!-- Wallet section -->
+        <section id="wallet-section" class="section-content hidden">
+            <h2>Your Wallet</h2>
+            <div class="wallet-info">
+                <p>Current Balance: <span id="wallet-balance">1000.00</span> Credits</p>
+                <button class="deposit-button" onclick="showDepositModal()">Add Credits</button>
+            </div>
+            <h3>Transaction History</h3>
+            <div id="transaction-list" class="transaction-list">
+                <!-- Transactions will be loaded dynamically -->
+                <p class="empty-message">No transactions to display.</p>
+            </div>
+        </section>
+
+        <!-- Account section -->
+        <section id="account-section" class="section-content hidden">
+            <h2>Account Settings</h2>
+            <div class="account-info">
+                <p>Username: <span id="account-username"></span></p>
+                <p>Account Created: <span id="account-created"></span></p>
+            </div>
+            <div class="account-actions">
+                <button class="logout-button" onclick="logout()">Logout</button>
+            </div>
+        </section>
 
         <!-- Bottom navigation -->
         <nav class="bottom-nav">
