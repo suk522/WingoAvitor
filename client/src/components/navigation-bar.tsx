@@ -37,11 +37,10 @@ const navItems: NavItem[] = [
 ];
 
 export function NavigationBar() {
-  const [location, setLocation] = useState("/");
+  const [location] = useLocation();
   const [, navigate] = useLocation();
 
   const handleNavigation = (path: string) => {
-    setLocation(path);
     navigate(path);
   };
 

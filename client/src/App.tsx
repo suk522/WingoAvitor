@@ -9,10 +9,14 @@ import AuthPage from "@/pages/auth-page";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
 
+// Import account page
+import AccountPage from "@/pages/account-page";
+
 function Router() {
   return (
     <Switch>
       <ProtectedRoute path="/" component={Home} />
+      <ProtectedRoute path="/account" component={AccountPage} />
       <Route path="/auth" component={AuthPage} />
       {/* Fallback to 404 */}
       <Route component={NotFound} />
