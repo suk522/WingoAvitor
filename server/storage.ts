@@ -6,8 +6,10 @@ import bcrypt from "bcryptjs";
 
 // Create PostgreSQL client
 const connectionString = process.env.DATABASE_URL || "";
-const client = postgres(connectionString, { 
-  ssl: { rejectUnauthorized: false }
+const poolUrl = connectionString.replace('.us-east-2', '-pooler.us-east-2');
+const client = postgres(poolUrl, { 
+  ssl: true,
+  max: 10
 });
 
 const db = drizzle(client);
