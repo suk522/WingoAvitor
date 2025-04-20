@@ -21,7 +21,7 @@ const sessionMiddleware = session({
     conString: process.env.DATABASE_URL || "",
     tableName: 'session',
     createTableIfMissing: true,
-    ssl: { rejectUnauthorized: false }
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
   }),
   secret: process.env.SESSION_SECRET || 'bc99_secret_key',
   resave: false,

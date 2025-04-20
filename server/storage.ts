@@ -5,11 +5,17 @@ import postgres from "postgres";
 import bcrypt from "bcryptjs";
 
 // Create PostgreSQL client
-const connectionString = process.env.DATABASE_URL || "";
+if (!process.env.DATABASE_URL) {
+  throw new Error("DATABASE_URL environment variable is required");
+}
+
+const connectionString = process.env.DATABASE_URL;
 const poolUrl = connectionString.replace('.us-east-2', '-pooler.us-east-2');
 const client = postgres(poolUrl, { 
-  ssl: true,
-  max: 10
+  ssl: { rejectUnauthorized: false },
+  max: 10,
+  idle_timeout: 20,
+  connect_timeout: 10
 });
 
 const db = drizzle(client);
