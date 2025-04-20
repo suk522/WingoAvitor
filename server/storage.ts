@@ -14,6 +14,18 @@ client.connect()
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
 
+// Collection
+const usersCollection = db.collection('users');
+
+// Generate unique UID
+async function generateUID(): Promise<string> {
+  while (true) {
+    const uid = Math.floor(10000 + Math.random() * 90000).toString();
+    const exists = await usersCollection.findOne({ uid });
+    if (!exists) return uid;
+  }
+}
+
 // Interface definitions
 export interface User {
   id: number;
@@ -77,7 +89,7 @@ export class MongoStorage implements IStorage {
 
   async createUser(userData: { username: string; password: string; mobile: string }): Promise<User> {
     const hashedPassword = await bcrypt.hash(userData.password, 10);
-    const uid = await this.generateUID();
+    const uid = await generateUID();
     
     const user = {
       uid,
@@ -90,13 +102,25 @@ export class MongoStorage implements IStorage {
       created_at: new Date()
     };
     
-    const result = await db.collection('users').insertOne(user);
+    const result = await usersCollection.insertOne(user);
     return { id: result.insertedId as unknown as number, ...user };
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const user = await db.collection('users').findOne({ username });
-    return user ? { id: user._id as unknown as number, ...user } : undefined;
+    const user = await usersCollection.findOne({ username });
+    if (!user) return undefined;
+    
+    return { 
+      id: user._id as unknown as number,
+      uid: user.uid,
+      username: user.username,
+      password: user.password,
+      balance: user.balance,
+      mobile: user.mobile,
+      is_admin: user.is_admin,
+      is_banned: user.is_banned,
+      created_at: user.created_at
+    };
   }
 
   async getUserById(id: number): Promise<User | undefined> {
