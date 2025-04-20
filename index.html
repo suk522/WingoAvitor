@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BC99 Gaming Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header section -->
+        <header>
+            <h1>Welcome to BC99</h1>
+            <p>Experience the thrill of our premium games</p>
+        </header>
+
+        <!-- Main content -->
+        <main>
+            <div class="games-grid">
+                <!-- Wingo Game Card -->
+                <div class="game-card">
+                    <h2>BC99 Wingo</h2>
+                    <div class="game-logo">
+                        <img src="attached_assets/wingo.png" alt="Wingo">
+                    </div>
+                    <button class="play-button" onclick="playGame('wingo')">Play</button>
+                </div>
+
+                <!-- Aviator Game Card -->
+                <div class="game-card">
+                    <h2>BC99 Aviator</h2>
+                    <div class="game-logo">
+                        <img src="attached_assets/avaitor.png" alt="Aviator">
+                    </div>
+                    <button class="play-button" onclick="playGame('aviator')">Play</button>
+                </div>
+
+                <!-- Slots Game Card -->
+                <div class="game-card">
+                    <h2>BC99 Slots</h2>
+                    <div class="game-logo">
+                        <img src="attached_assets/slots.png" alt="Slots">
+                    </div>
+                    <button class="play-button" onclick="playGame('slots')">Play</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Bottom navigation -->
+        <nav class="bottom-nav">
+            <ul>
+                <li class="active">
+                    <a href="#" onclick="navigate('home')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        <span>Home</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="navigate('activity')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14"></path><path d="M2 20h20"></path><path d="M14 12v.01"></path></svg>
+                        <span>Activity</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="navigate('wallet')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path></svg>
+                        <span>Wallet</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" onclick="navigate('account')">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        <span>Account</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

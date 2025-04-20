@@ -1,0 +1,189 @@
+/* Global styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: linear-gradient(to bottom, #7B1FA2, #000000);
+    color: white;
+    min-height: 100vh;
+    padding-bottom: 70px; /* Space for bottom navigation */
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header styles */
+header {
+    text-align: center;
+    padding: 2.5rem 1rem 1rem;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+header p {
+    font-size: 1.125rem;
+    opacity: 0.9;
+}
+
+/* Main content styles */
+main {
+    flex-grow: 1;
+    padding: 0 1rem 6rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.games-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-top: 2rem;
+}
+
+/* Game card styles */
+.game-card {
+    background-color: #7B1FA2;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+}
+
+.game-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.game-card h2 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 0.75rem;
+    color: white;
+}
+
+.game-logo {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+}
+
+.game-logo img {
+    width: 90%;
+    height: 90%;
+    object-fit: contain;
+}
+
+.play-button {
+    background-color: #E040FB;
+    color: white;
+    border: none;
+    padding: 0.5rem 3rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.play-button:hover {
+    background-color: #D500F9;
+    transform: scale(1.05);
+}
+
+/* Bottom navigation */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #7B1FA2;
+    padding: 0.75rem 0.5rem;
+    z-index: 10;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.bottom-nav ul {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    list-style-type: none;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.bottom-nav li {
+    text-align: center;
+    width: 25%;
+}
+
+.bottom-nav a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-weight: normal;
+}
+
+.bottom-nav li.active a {
+    color: white;
+    font-weight: 600;
+    position: relative;
+}
+
+.bottom-nav li.active a::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 25%;
+    width: 50%;
+    height: 3px;
+    background-color: white;
+    border-radius: 3px;
+}
+
+.bottom-nav svg {
+    height: 1.25rem;
+    width: 1.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.bottom-nav span {
+    font-size: 0.875rem;
+}
+
+/* Responsive styles */
+@media (min-width: 768px) {
+    .games-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    header h1 {
+        font-size: 3rem;
+    }
+}
+
+@media (min-width: 1024px) {
+    .games-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
