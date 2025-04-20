@@ -1,166 +1,167 @@
-import { users, games, gameHistory, type User, type InsertUser, type Game, type InsertGame, type GameHistory, type InsertGameHistory } from "@shared/schema";
-import { drizzle } from "drizzle-orm/postgres-js";
-import { eq, desc } from "drizzle-orm";
-import postgres from "postgres";
+
+import { MongoClient, ObjectId } from 'mongodb';
 import bcrypt from "bcryptjs";
 
-// Create PostgreSQL client
-if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL environment variable is required");
+if (!process.env.MONGODB_URI) {
+  throw new Error("MONGODB_URI environment variable is required");
 }
 
-const connectionString = process.env.DATABASE_URL;
-const poolUrl = connectionString.replace('.us-east-2', '-pooler.us-east-2');
-const client = postgres(poolUrl, { 
-  ssl: { rejectUnauthorized: false },
-  max: 10,
-  idle_timeout: 20,
-  connect_timeout: 10
-});
+const client = new MongoClient(process.env.MONGODB_URI);
+const db = client.db("bc99db");
 
-const db = drizzle(client);
+// Interface definitions
+export interface User {
+  id: number;
+  uid: string;
+  username: string;
+  password: string;
+  balance: string;
+  mobile: string;
+  is_admin: boolean;
+  is_banned: boolean;
+  created_at: Date;
+}
 
-// Interface for our database operations
+export interface Game {
+  id: number;
+  name: string;
+  image_path: string;
+}
+
+export interface GameHistory {
+  id: number;
+  user_id: number;
+  game_id: number;
+  bet_amount: string;
+  win_amount: string;
+  played_at: Date;
+}
+
 export interface IStorage {
-  getUser(id: number): Promise<User | undefined>;
+  initializeDatabase(): Promise<void>;
+  createUser(user: { username: string; password: string; mobile: string }): Promise<User>;
   getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getUserById(id: number): Promise<User | undefined>;
   updateUserBalance(userId: number, amount: number): Promise<User | undefined>;
   updateUserBanStatus(userId: number, banned: boolean): Promise<User | undefined>;
   getAllUsers(): Promise<User[]>;
   getAllGames(): Promise<Game[]>;
-  recordGamePlay(gamePlay: InsertGameHistory): Promise<GameHistory>;
+  recordGamePlay(gamePlay: { user_id: number; game_id: number; bet_amount: string; win_amount: string }): Promise<GameHistory>;
   getGameHistory(userId: number): Promise<(GameHistory & { game_name: string })[]>;
-  initializeDatabase(): Promise<void>;
 }
 
-// PostgreSQL implementation of IStorage
-export class PgStorage implements IStorage {
-  async getUser(id: number): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
-    return result[0];
-  }
-
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
-    return result[0];
-  }
-
-  // Generate a unique 5-digit UID
-  async generateUID(): Promise<string> {
-    let uid = '';
-    let isUnique = false;
-    
-    while (!isUnique) {
-      // Generate a random 5-digit number
-      uid = Math.floor(10000 + Math.random() * 90000).toString();
-      
-      // Check if it's unique
-      const existingUsers = await db.select().from(users).where(eq(users.uid, uid));
-      
-      if (existingUsers.length === 0) {
-        isUnique = true;
-      }
-    }
-    
-    return uid;
-  }
-
-  async createUser(insertUser: InsertUser): Promise<User> {
-    // Hash password before storing it
-    const hashedPassword = await bcrypt.hash(insertUser.password, 10);
-    
-    // Generate unique UID
-    const uid = await this.generateUID();
-    
-    // Insert user with generated UID
-    const result = await db.insert(users).values({
-      uid,
-      username: insertUser.username,
-      password: hashedPassword,
-      mobile: insertUser.mobile,
-    }).returning();
-    
-    return result[0];
-  }
-
-  async updateUserBalance(userId: number, amount: number): Promise<User | undefined> {
-    // First get current user to calculate new balance
-    const currentUser = await this.getUser(userId);
-    if (!currentUser) return undefined;
-    
-    // Calculate new balance (we need to parse string to number for calculation)
-    const currentBalance = parseFloat(currentUser.balance.toString());
-    const newBalance = currentBalance + amount;
-    
-    // Update user balance
-    const result = await db
-      .update(users)
-      .set({ balance: newBalance.toString() })
-      .where(eq(users.id, userId))
-      .returning();
-    
-    return result[0];
-  }
-  
-  async updateUserBanStatus(userId: number, banned: boolean): Promise<User | undefined> {
-    // First check if user exists
-    const currentUser = await this.getUser(userId);
-    if (!currentUser) return undefined;
-    
-    // Update user ban status
-    const result = await db
-      .update(users)
-      .set({ is_banned: banned })
-      .where(eq(users.id, userId))
-      .returning();
-    
-    return result[0];
-  }
-  
-  async getAllUsers(): Promise<User[]> {
-    // Return all users, sorted by ID
-    return await db.select().from(users).orderBy(users.id);
-  }
-
-  async getAllGames(): Promise<Game[]> {
-    return await db.select().from(games);
-  }
-
-  async recordGamePlay(gamePlay: InsertGameHistory): Promise<GameHistory> {
-    const result = await db.insert(gameHistory).values(gamePlay).returning();
-    return result[0];
-  }
-
-  async getGameHistory(userId: number): Promise<(GameHistory & { game_name: string })[]> {
-    // Join gameHistory and games tables
-    const result = await db
-      .select({
-        ...gameHistory,
-        game_name: games.name
-      })
-      .from(gameHistory)
-      .innerJoin(games, eq(gameHistory.game_id, games.id))
-      .where(eq(gameHistory.user_id, userId))
-      .orderBy(desc(gameHistory.played_at));
-    
-    return result;
-  }
-
+export class MongoStorage implements IStorage {
   async initializeDatabase(): Promise<void> {
-    // Check if games table has entries
-    const existingGames = await db.select().from(games);
-    
-    // If no games exist, insert the initial game data
-    if (existingGames.length === 0) {
-      await db.insert(games).values([
+    const gamesCount = await db.collection('games').countDocuments();
+    if (gamesCount === 0) {
+      await db.collection('games').insertMany([
         { name: 'BC99 Wingo', image_path: 'attached_assets/wingo.png' },
         { name: 'BC99 Aviator', image_path: 'attached_assets/avaitor.png' },
         { name: 'BC99 Slots', image_path: 'attached_assets/slots.png' }
       ]);
-      console.log('Initial game data inserted');
     }
+  }
+
+  async generateUID(): Promise<string> {
+    while (true) {
+      const uid = Math.floor(10000 + Math.random() * 90000).toString();
+      const exists = await db.collection('users').findOne({ uid });
+      if (!exists) return uid;
+    }
+  }
+
+  async createUser(userData: { username: string; password: string; mobile: string }): Promise<User> {
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
+    const uid = await this.generateUID();
+    
+    const user = {
+      uid,
+      username: userData.username,
+      password: hashedPassword,
+      balance: "1000.00",
+      mobile: userData.mobile,
+      is_admin: false,
+      is_banned: false,
+      created_at: new Date()
+    };
+    
+    const result = await db.collection('users').insertOne(user);
+    return { id: result.insertedId as unknown as number, ...user };
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const user = await db.collection('users').findOne({ username });
+    return user ? { id: user._id as unknown as number, ...user } : undefined;
+  }
+
+  async getUserById(id: number): Promise<User | undefined> {
+    const user = await db.collection('users').findOne({ _id: new ObjectId(id) });
+    return user ? { id: user._id as unknown as number, ...user } : undefined;
+  }
+
+  async updateUserBalance(userId: number, amount: number): Promise<User | undefined> {
+    const result = await db.collection('users').findOneAndUpdate(
+      { _id: new ObjectId(userId) },
+      { $inc: { balance: amount.toString() } },
+      { returnDocument: 'after' }
+    );
+    return result ? { id: result._id as unknown as number, ...result } : undefined;
+  }
+
+  async updateUserBanStatus(userId: number, banned: boolean): Promise<User | undefined> {
+    const result = await db.collection('users').findOneAndUpdate(
+      { _id: new ObjectId(userId) },
+      { $set: { is_banned: banned } },
+      { returnDocument: 'after' }
+    );
+    return result ? { id: result._id as unknown as number, ...result } : undefined;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    const users = await db.collection('users').find().toArray();
+    return users.map(user => ({ id: user._id as unknown as number, ...user }));
+  }
+
+  async getAllGames(): Promise<Game[]> {
+    const games = await db.collection('games').find().toArray();
+    return games.map(game => ({ id: game._id as unknown as number, ...game }));
+  }
+
+  async recordGamePlay(gamePlay: { user_id: number; game_id: number; bet_amount: string; win_amount: string }): Promise<GameHistory> {
+    const history = {
+      ...gamePlay,
+      played_at: new Date()
+    };
+    const result = await db.collection('game_history').insertOne(history);
+    return { id: result.insertedId as unknown as number, ...history };
+  }
+
+  async getGameHistory(userId: number): Promise<(GameHistory & { game_name: string })[]> {
+    const history = await db.collection('game_history')
+      .aggregate([
+        { $match: { user_id: userId } },
+        { $lookup: {
+          from: 'games',
+          localField: 'game_id',
+          foreignField: '_id',
+          as: 'game'
+        }},
+        { $unwind: '$game' },
+        { $project: {
+          id: '$_id',
+          user_id: 1,
+          game_id: 1,
+          bet_amount: 1,
+          win_amount: 1,
+          played_at: 1,
+          game_name: '$game.name'
+        }},
+        { $sort: { played_at: -1 } },
+        { $limit: 20 }
+      ]).toArray();
+    
+    return history;
   }
 }
 
-export const storage = new PgStorage();
+export const storage = new MongoStorage();
